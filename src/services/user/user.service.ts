@@ -1,14 +1,14 @@
 import StatusCodeEnum from '../../utils/enums/StatusCodeEnum';
 import * as IUserService from '../../services/user/IUserService';
 import UserStore from './user.store';
-import SendResponse from '../../utils/common/commonResponse';
+import SendResponse from '../../utils/common/response';
 import UserEnum from '../../utils/enums/MessageEnum';
 import { Response } from '../../utils/interfaces/common';
 import IUser, { IUserSuccess, IGetUserSuccessData } from './IUserService';
-import CommonFunction from '../../utils/common/commonFunction';
 import { IError } from '../../utils/interfaces/common';
 import bcrypt from 'bcrypt';
-const commonFun = new CommonFunction(bcrypt);
+import HelperFunction from '../../utils/common/helper';
+const helperFun = new HelperFunction();
 import { LoggerEnum } from '../../utils/enums/DefaultEnums';
 
 export default class UserService {
@@ -42,9 +42,9 @@ export default class UserService {
         data: { user },
       };
       //logging information
-      commonFun.log({
+      helperFun.log({
         message: data.message,
-        location: await commonFun.removeSubstring(__dirname, __filename),
+        location: await helperFun.removeSubstring(__dirname, __filename),
         level: LoggerEnum.INFO,
         error: '',
       });
@@ -56,9 +56,9 @@ export default class UserService {
         error: e,
       };
       //logging error
-      commonFun.log({
+      helperFun.log({
         message: e.message,
-        location: await commonFun.removeSubstring(__dirname, __filename),
+        location: await helperFun.removeSubstring(__dirname, __filename),
         level: LoggerEnum.ERROR,
         error: e,
       });

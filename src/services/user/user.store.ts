@@ -1,9 +1,9 @@
 import IUser from './IUserService';
 import database from '../../config/db';
 import { LoggerEnum } from '../../utils/enums/DefaultEnums';
-import CommonFunction from '../../utils/common/commonFunction';
 const User = database.users;
-const commonFun = new CommonFunction();
+import HelperFunction from '../../utils/common/helper';
+const helperFun = new HelperFunction();
 
 export default class UserStore {
   public static OPERATION_UNSUCCESSFUL = class extends Error {
@@ -23,9 +23,9 @@ export default class UserStore {
       return await User.findByPk(userId);
     } catch (e) {
       //logging error
-      commonFun.log({
+      helperFun.log({
         message: e.message,
-        location: await commonFun.removeSubstring(__dirname, __filename),
+        location: await helperFun.removeSubstring(__dirname, __filename),
         level: LoggerEnum.ERROR,
         error: e,
       });
@@ -38,14 +38,14 @@ export default class UserStore {
    * @param attributes
    * @returns
    */
-  public async findByAttribute(attributes: object): Promise<IUser> {
+  public async findByAttribute(attributes: Partial<IUser>): Promise<IUser> {
     try {
       return await User.findOne({ where: attributes });
     } catch (e) {
       //logging error
-      commonFun.log({
+      helperFun.log({
         message: e.message,
-        location: await commonFun.removeSubstring(__dirname, __filename),
+        location: await helperFun.removeSubstring(__dirname, __filename),
         level: LoggerEnum.ERROR,
         error: e,
       });

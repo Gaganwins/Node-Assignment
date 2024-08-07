@@ -5,8 +5,8 @@ import UserStore from '../user/user.store';
 import bcrypt from 'bcrypt';
 import { IError, Response } from '../../utils/interfaces/common';
 import jwt from 'jsonwebtoken';
-import CommonFunction from '../../utils/common/commonFunction';
-import SendResponse from '../../utils/common/commonResponse';
+import AuthFunction from '../../utils/common/auth';
+import SendResponse from '../../utils/common/response';
 import UserEnum from '../../utils/enums/MessageEnum';
 import StatusEnum from '../../utils/enums/StatusEnum';
 import { REFRESH_TOKEN_EXPIRATION, TOKEN_EXPIRATION } from '../../env';
@@ -17,8 +17,10 @@ import {
   ILoginSuccessData,
 } from '../../services/auth/IAuthService';
 import { LoggerEnum } from '../../utils/enums/DefaultEnums';
+import HelperFunction from '../../utils/common//helper';
 
-const commonFun = new CommonFunction(bcrypt, jwt);
+const authFun = new AuthFunction(bcrypt, jwt);
+const helperFun = new HelperFunction();
 export default class AuthService {
   private userStorage = new UserStore();
   constructor() {}
@@ -36,7 +38,7 @@ export default class AuthService {
     let data: IError | ILoginSuccess<ILoginSuccessData>;
     try {
       // Validate schema
-      const params = await commonFun.validate(loginSchema, request.body);
+      const params = await helperFun.validate(loginSchema, request.body);
       if (!params.value) {
         data = {
           statusCode: StatusCodeEnum.BAD_REQUEST,
@@ -62,7 +64,7 @@ export default class AuthService {
       }
       const userPassword: string = user.password;
       // Check password is valid or not
-      const matchPassword: boolean = await commonFun.comparePassword(
+      const matchPassword: boolean = await authFun.comparePassword(
         password,
         userPassword,
       );
@@ -84,10 +86,10 @@ export default class AuthService {
       };
 
       // Generate JWT Token
-      const token: string = await commonFun.generateToken(tokenReq);
+      const token: string = await authFun.generateToken(tokenReq);
       // Generate JWT Token for refresh Token
       tokenReq.expire = REFRESH_TOKEN_EXPIRATION;
-      const refresh_token: string = await commonFun.generateToken(tokenReq);
+      const refresh_token: string = await authFun.generateToken(tokenReq);
       data = {
         statusCode: StatusCodeEnum.OK,
         message: UserEnum.LOGIN_SUCCESSFULLY,
@@ -99,18 +101,18 @@ export default class AuthService {
       };
 
       //logging information
-      commonFun.log({
+      helperFun.log({
         message: data.message,
-        location: await commonFun.removeSubstring(__dirname, __filename),
+        location: await helperFun.removeSubstring(__dirname, __filename),
         level: LoggerEnum.INFO,
         error: '',
       });
       return SendResponse(response, data, StatusCodeEnum.OK);
     } catch (e) {
       //logging error
-      commonFun.log({
+      helperFun.log({
         message: e.message,
-        location: await commonFun.removeSubstring(__dirname, __filename),
+        location: await helperFun.removeSubstring(__dirname, __filename),
         level: LoggerEnum.ERROR,
         error: e,
       });
